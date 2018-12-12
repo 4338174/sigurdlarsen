@@ -23,7 +23,7 @@ video {
 	position: relative;
 	margin: 10px auto;
 
-	border: 10px solid #ca9353;
+	border: 1px solid #000000;
 	cursor: all-scroll;
 }
 #overlay {
