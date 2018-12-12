@@ -1,160 +1,184 @@
-import {Promise} from "es6-promise";
-// class ImageSequenceSlider extends Element {
+import { Promise } from 'es6-promise';
 
-// 	private sliderElement: Element;
-	
-// 	constructor() {
-// 		this.id = 'slider';
+/**
+ * A 360 degree slider element
+ */
+class Slider {
 
+  private activeImage: number;
 
-// 		if (document.querySelector('#slider') !== null) {
+  private dragOffset: number;
 
-// 		} 
-// 	}
-// }
+  private lastPosition: number;
 
-// class ImageSequenceSlider extends HTMLDivElement {
-//     private sliderElement: HTMLDivElement;
+  private mouseDownId: number;
 
-//     constructor() {
-// 		super();
-// 		this.sliderElement = <HTMLDivElement>document.createElement('div');
-// 		this.sliderElement.innerHTML = '<p>hi</p>';
-		// this.innerHTML = sliderElement;
-    // }
+  private preloadedImgElements: Element[];
 
-    // set innerHTML(content: string) {
-    //     this.sliderElement.innerHTML = content;
-    // }
-// }
+  private sliderElement: HTMLElement;
 
-// customElements.define('image-sequence-slider', ImageSequenceSlider);
+  constructor(id: string, private imagePaths: string[], loadingImagePath: string) {
+    const sliderElement = document.getElementById(id);
 
-// let test = new ImageSequenceSlider();
-// document.body.appendChild(test)
+    if (sliderElement === null) {
+      throw new Error('No slider with id ' + id + ' found.');
+    }
 
+    this.activeImage = 0;
+    this.dragOffset = 2;
+    this.lastPosition = 0;
+    this.mouseDownId = -1;
+    this.preloadedImgElements = [];
+    this.sliderElement = sliderElement;
 
+    const overlayElement = document.createElement('div');
+    overlayElement.style.width = '100%';
+    overlayElement.style.height = '100%';
+    overlayElement.style.position = 'absolute';
+    this.sliderElement.appendChild(overlayElement);
 
-let sliderElement = document.querySelector('#slider');
-let mouseDownId = -1;
-let dragOffset = 3;
-let lastPosition: number;
-let images: string[] = [];
-let preloadedImgElements: Element[] = [];
-let activeImage = 0;
+    const imageElement = document.createElement('img');
+    imageElement.src = loadingImagePath;
+    this.sliderElement.appendChild(imageElement);
 
-for(let i=0; i<29; i++) {
-	images.push(`./img/modell/modell_spin${('0'+i).slice(-2)}.png`);
-}
-console.log(images);
+    this.preloadImages(this.imagePaths).then((imgs: Element[]) => {
+      if (sliderElement === null) {
+        throw new Error('sliderElement does not exist.');
+      }
+      // all images are loaded now and in the array imgs
+      this.preloadedImgElements = imgs;
 
-function mouseDown(event: Event) {
-	mouseDownId = 1;
-	lastPosition = (event as MouseEvent).screenX;
-}
-function mouseUp() {
-	mouseDownId=-1;
-}
-function mouseMove(event: Event) {
-	if(mouseDownId==1)
-	onDrag((event as MouseEvent).screenX);
-}
+      for (let i = 0; i < this.preloadedImgElements.length; i++) {
+        setTimeout(() => this.replaceImgElement(this.preloadedImgElements[i]), i * 25);
+      }
 
-function touchStart(event: Event) {
-	mouseDownId = 1;
-	lastPosition = (event as TouchEvent).touches[0].screenX;
-}
-function touchEnd(_event: Event) {
-	mouseDownId=-1;
-}
-function touchMove(event: Event) {
-	if(mouseDownId==1)
-	onDrag((event as TouchEvent).touches[0].screenX);
-}
+      sliderElement.addEventListener('mousedown', this.mouseDown);
+      document.body.addEventListener('mouseup', this.mouseUp);
+      document.body.addEventListener('mousemove', this.mouseMove);
 
-// count up or down in img array
-function onDrag(currentPosition: number) {
-	if(currentPosition + dragOffset < lastPosition) {
-		console.log('left');
-		lastPosition = currentPosition;
-		if(activeImage != images.length-1)
-			activeImage = activeImage + 1;
-		else
-			activeImage = 0;
+      sliderElement.addEventListener('touchstart', this.touchStart);
+      document.body.addEventListener('touchmove', this.touchMove);
+      document.body.addEventListener('touchend', this.touchEnd);
 
-		console.log(images[activeImage]);		
-		replaceImgElement(preloadedImgElements[activeImage]);		
-	}
-	if(currentPosition - dragOffset > lastPosition) {
-		console.log('right');
-		lastPosition = currentPosition;
-		if(activeImage != 0)
-			activeImage = activeImage - 1;
-		else
-			activeImage = images.length - 1;
+    }, (loadingImageError) => {
+      // at least one image failed to load
+      throw loadingImageError;
+    });
 
-		console.log(images[activeImage]);
-		replaceImgElement(preloadedImgElements[activeImage]);
-	}
-}
+  }
 
-// replace img element src
-function replaceImgElement(newImgElement: Element) {
-	if (sliderElement === null) {
-		throw new Error('sliderElement does not exist.');
-	}
-	const img = sliderElement.querySelector('img');
-	if (img === null) {
-		throw new Error('No image found.');
-	}
-	sliderElement.replaceChild(newImgElement, img);
-	// sliderElement.querySelector('img').src = newImgElement.src;
-}
+  mouseDown = (event: Event) => {
+    this.mouseDownId = 1;
+    this.lastPosition = (event as MouseEvent).screenX;
+  }
 
-// preload img elements in array
-function preloadImages(srcs: string[]): Promise<HTMLImageElement[]> {
-    var promises = srcs.map<Promise<HTMLImageElement>>((src) => {
-		return new Promise<HTMLImageElement>(function(resolve, reject) {
-			var img = new Image();
-			img.onload = function() {
-				resolve(img);
-			};
-			img.onerror = img.onabort = function() {
-				reject(src);
-			};
-			img.src = src;
-		});
-	});
+  mouseMove = (event: Event) => {
+    if (this.mouseDownId === 1) {
+      this.onDrag((event as MouseEvent).screenX);
+    }
+  }
+
+  mouseUp = () => {
+    this.mouseDownId = -1;
+  }
+
+  onDrag(currentPosition: number) {
+    if (currentPosition + this.dragOffset < this.lastPosition) {
+      console.log('left');
+      this.lastPosition = currentPosition;
+      if (this.activeImage !== this.imagePaths.length - 1) {
+        this.activeImage = this.activeImage + 1;
+      } else {
+        this.activeImage = 0;
+      }
+
+      console.log(this.imagePaths[this.activeImage]);
+      this.replaceImgElement(this.preloadedImgElements[this.activeImage]);
+    }
+
+    if (currentPosition - this.dragOffset > this.lastPosition) {
+      console.log('right');
+      this.lastPosition = currentPosition;
+      if (this.activeImage !== 0) {
+        this.activeImage = this.activeImage - 1;
+      } else {
+        this.activeImage = this.imagePaths.length - 1;
+      }
+
+      console.log(this.imagePaths[this.activeImage]);
+      this.replaceImgElement(this.preloadedImgElements[this.activeImage]);
+    }
+  }
+
+  preloadImages(srcs: string[]): Promise<HTMLImageElement[]> {
+    const promises = srcs.map<Promise<HTMLImageElement>>((src) => {
+      return new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          resolve(img);
+        };
+        img.onerror = img.onabort = () => {
+          reject(src);
+        };
+        img.src = src;
+      });
+    });
     return Promise.all(promises);
+  }
+
+  replaceImgElement(newImgElement: Element) {
+    const img = this.sliderElement.querySelector('img');
+    if (img === null) {
+      throw new Error('No image found.');
+    }
+    this.sliderElement.replaceChild(newImgElement, img);
+    // sliderElement.querySelector('img').src = newImgElement.src;
+  }
+
+  touchEnd = (_event: Event) => {
+    this.mouseDownId = -1;
+  }
+
+  touchMove = (event: Event) => {
+    if (this.mouseDownId === 1) {
+      this.onDrag((event as TouchEvent).touches[0].screenX);
+    }
+  }
+
+  touchStart = (event: Event) => {
+    this.mouseDownId = 1;
+    this.lastPosition = (event as TouchEvent).touches[0].screenX;
+  }
 }
 
+let musikerImages :string[] = [];
+let betonImages :string[] = [];
+let treetopImages :string[] = [];
 
-preloadImages(images).then((imgs: Element[]) => {
-	if (sliderElement === null) {
-		throw new Error('sliderElement does not exist.');
-	}
-	// all images are loaded now and in the array imgs
-	preloadedImgElements = imgs;	
+for(let i=0; i<120; i++) {
+	musikerImages.push(`./img/musiker_modell/musiker_modell_${('00'+i).slice(-3)}.jpg`);
+}
+for(let i=0; i<72; i++) {
+	betonImages.push(`./img/beton_modell/beton_modell_${('0'+i).slice(-2)}.jpg`);
+}
+for(let i=0; i<297; i++) {
+	treetopImages.push(`./img/treetop_modell/treetop_modell_${('0000'+i).slice(-5)}.jpg`);
+}
 
-	for(let i = 0; i < preloadedImgElements.length; i++) {
-		setTimeout(() => replaceImgElement(preloadedImgElements[i]), i * 25);
-	}
+export const musikerSlider = new Slider(
+  'musikerSlider',
+  musikerImages,
+  './assets/loading_icon.gif',
+  );
 
-	sliderElement.addEventListener("mousemove", mouseMove);
-	sliderElement.addEventListener("mousedown", mouseDown);
-	sliderElement.addEventListener("mouseup", mouseUp);
-	document.body.addEventListener("mouseup", mouseUp);
-	document.body.addEventListener("mouseleave", mouseUp);
-	document.body.addEventListener("mousemove", mouseMove);
+export const betonSlider = new Slider(
+  'betonSlider',
+  betonImages,
+  './assets/loading_icon.gif',
+  );
 
-	sliderElement.addEventListener('touchstart', touchStart);
-	sliderElement.addEventListener('touchend', touchEnd);
-	sliderElement.addEventListener('touchmove', touchMove);
-	document.body.addEventListener("touchstart", touchStart);
-	document.body.addEventListener("touchend", touchEnd);
-	
-}, function(errImg) {
-	// at least one image failed to load
-	console.log(errImg);
-	
-});
+export const treetopSlider = new Slider(
+  'treetopSlider',
+  treetopImages,
+  './assets/loading_icon.gif',
+  );
