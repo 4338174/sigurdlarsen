@@ -10,7 +10,7 @@ declare class Slider {
     private mouseDownId;
     private preloadedImgElements;
     private sliderElement;
-    constructor(id: string, imagePaths: string[], loadingImagePath: string);
+    constructor(id: string, imagePaths: string[], loadingImagePath: string, dragOffset?: number);
     mouseDown: (event: Event) => void;
     mouseMove: (event: Event) => void;
     mouseUp: () => void;
@@ -21,7 +21,10 @@ declare class Slider {
     touchMove: (event: Event) => void;
     touchStart: (event: Event) => void;
 }
-export declare const musikerSlider: Slider;
 export declare const betonSlider: Slider;
+export declare const musikerSlider: Slider;
 export declare const treetopSlider: Slider;
+export declare const betonSliderReduced: Slider;
+export declare const musikerSliderReduced: Slider;
+export declare const treetopSliderReduced: Slider;
 export {};

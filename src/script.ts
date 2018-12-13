@@ -17,7 +17,7 @@ class Slider {
 
   private sliderElement: HTMLElement;
 
-  constructor(id: string, private imagePaths: string[], loadingImagePath: string) {
+  constructor(id: string, private imagePaths: string[], loadingImagePath: string, dragOffset: number = 2) {
     const sliderElement = document.getElementById(id);
 
     if (sliderElement === null) {
@@ -25,7 +25,7 @@ class Slider {
     }
 
     this.activeImage = 0;
-    this.dragOffset = 2;
+    this.dragOffset = dragOffset;
     this.lastPosition = 0;
     this.mouseDownId = -1;
     this.preloadedImgElements = [];
@@ -151,34 +151,73 @@ class Slider {
   }
 }
 
-let musikerImages :string[] = [];
 let betonImages :string[] = [];
+let musikerImages :string[] = [];
 let treetopImages :string[] = [];
 
+let betonImagesReduced :string[] = [];
+let musikerImagesReduced :string[] = [];
+let treetopImagesReduced :string[] = [];
+
+for(let i=0; i<72; i++) {
+  betonImages.push(`./img/beton_modell/beton_modell_${('0'+i).slice(-2)}.jpg`);
+}
 for(let i=0; i<120; i++) {
 	musikerImages.push(`./img/musiker_modell/musiker_modell_${('00'+i).slice(-3)}.jpg`);
-}
-for(let i=0; i<72; i++) {
-	betonImages.push(`./img/beton_modell/beton_modell_${('0'+i).slice(-2)}.jpg`);
 }
 for(let i=0; i<297; i++) {
 	treetopImages.push(`./img/treetop_modell/treetop_modell_${('0000'+i).slice(-5)}.jpg`);
 }
 
-export const musikerSlider = new Slider(
-  'musikerSlider',
-  musikerImages,
-  './assets/loading_icon.gif',
-  );
+for(let i=0; i<30; i++) {
+  betonImagesReduced.push(`./img/beton_modell-reduced/30frames${('0'+i).slice(-2)}.jpg`);
+}
+for(let i=0; i<30; i++) {
+	musikerImagesReduced.push(`./img/musiker_modell-reduced/30frames${('0'+i).slice(-2)}.jpg`);
+}
+for(let i=0; i<60; i++) {
+	treetopImagesReduced.push(`./img/treetop_modell-reduced/60frames${('0'+i).slice(-2)}.jpg`);
+}
 
 export const betonSlider = new Slider(
   'betonSlider',
   betonImages,
   './assets/loading_icon.gif',
+  0
+  );
+
+export const musikerSlider = new Slider(
+  'musikerSlider',
+  musikerImages,
+  './assets/loading_icon.gif',
+  0
   );
 
 export const treetopSlider = new Slider(
   'treetopSlider',
   treetopImages,
   './assets/loading_icon.gif',
+  0
+  );
+
+
+export const betonSliderReduced = new Slider(
+  'betonSliderReduced',
+  betonImagesReduced,
+  './assets/loading_icon.gif',
+  10
+  );
+
+export const musikerSliderReduced = new Slider(
+  'musikerSliderReduced',
+  musikerImagesReduced,
+  './assets/loading_icon.gif',
+  10
+  );
+
+export const treetopSliderReduced = new Slider(
+  'treetopSliderReduced',
+  treetopImagesReduced,
+  './assets/loading_icon.gif',
+  10
   );
