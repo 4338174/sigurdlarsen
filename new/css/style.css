@@ -60,7 +60,7 @@ Main Components
 -------------------------------- */
 .cd-product-viewer-wrapper {
   text-align: center;
-  padding: 2em 0;
+  /* padding: 2em 0; */
 }
 .cd-product-viewer-wrapper > div {
   display: inline-block;
@@ -79,6 +79,10 @@ Main Components
 }
 .cd-product-viewer-wrapper:nth-of-type(2) .product-sprite {
   background: url(../img/beton_modell_sprite_50pc.png) no-repeat center center;
+  background-size: 100% 100%;
+}
+.cd-product-viewer-wrapper:nth-of-type(3) .product-sprite {
+  background: url(../img/musiker_modell_sprite_50pc.png) no-repeat center center;
   background-size: 100% 100%;
 }
 .cd-product-viewer-wrapper .product-sprite {
