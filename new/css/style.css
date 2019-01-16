@@ -78,11 +78,11 @@ Main Components
   z-index: 1;
 }
 .cd-product-viewer-wrapper:nth-of-type(2) .product-sprite {
-  background: url(../img/beton_modell_sprite_50pc.png) no-repeat center center;
+  background: url(../img/beton_modell_sprite_50pc.jpg) no-repeat center center;
   background-size: 100% 100%;
 }
 .cd-product-viewer-wrapper:nth-of-type(3) .product-sprite {
-  background: url(../img/musiker_modell_sprite_50pc.png) no-repeat center center;
+  background: url(../img/musiker_modell_sprite_50pc.jpg) no-repeat center center;
   background-size: 100% 100%;
 }
 .cd-product-viewer-wrapper .product-sprite {
@@ -93,7 +93,7 @@ Main Components
   height: 100%;
   /* our image sprite is composed by 16 frames */
   width: 7200%;
-  background: url(../img/treetop_sprite_50pc.png) no-repeat center center;
+  background: url(../img/treetop_sprite_50pc.jpg) no-repeat center center;
   background-size: 100% 100%;
   opacity: 0;
   -webkit-transition: opacity 0.3s;
