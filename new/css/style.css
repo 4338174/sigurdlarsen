@@ -61,6 +61,8 @@ Main Components
 .cd-product-viewer-wrapper {
   text-align: center;
   /* padding: 2em 0; */
+  max-width: 800px;
+  margin: 0 auto;
 }
 .cd-product-viewer-wrapper > div {
   display: inline-block;
